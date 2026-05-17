@@ -61,7 +61,7 @@ function ReadCharCard({ badge, badgeColor, icon, char, onZoom }: ReadCharCardPro
               <div className="flex items-center gap-1.5">
                 <p className="text-[10px] font-black text-white/25 uppercase tracking-widest">{label}</p>
               </div>
-              <p className="text-xs font-medium text-white/55 leading-relaxed line-clamp-3">{char[key]}</p>
+              <p className="text-xs font-medium text-white/55 leading-relaxed">{char[key]}</p>
             </div>
           ) : null
         )}
