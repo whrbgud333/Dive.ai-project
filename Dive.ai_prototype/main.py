@@ -3400,9 +3400,11 @@ async def _chat_stream_v2(request: ChatRequest, topic, user_message: str, db: Se
             if reply and reply.strip():
                 chat_history.append({"role": "assistant", "content": reply.strip()})
 
-    # 재생성 시 마지막 assistant 메시지 제거 (비활성화 전이라 히스토리에 포함됨)
-    if request.is_regeneration and chat_history and chat_history[-1]["role"] == "assistant":
-        chat_history = chat_history[:-1]
+    # 재생성 시 마지막 턴의 assistant 메시지 전체 제거
+    # (조연 메시지가 메인 AI 답변 뒤에 오므로, 유저 메시지가 나올 때까지 모두 제거)
+    if request.is_regeneration:
+        while chat_history and chat_history[-1]["role"] == "assistant":
+            chat_history.pop()
 
     # 조연 캐릭터 이름 목록 (로어북 강제 주입용)
     supporting_names = [
