@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dive.ai — 발표자료</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: #0f0e1a;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background: #0f0e1a;
+  color: #e2e8f0;
+  overflow: hidden;
+  width: 1920px; height: 1080px;
+  transform-origin: center center;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ===== SLIDESHOW ===== */
+.slide-container { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+.slide {
+  position: absolute; inset: 0;
+  width: 1920px; height: 1080px;
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 80px;
+  background: linear-gradient(135deg, #0f0e1a 0%, #1a1535 50%, #0f0e1a 100%);
+  opacity: 0; transition: opacity 0.5s ease;
+}
+.slide.active { display: flex; opacity: 1; }
+
+/* ===== PROGRESS BAR ===== */
+#progress-bar {
+  position: fixed; bottom: 0; left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+  transition: width 0.4s ease;
+  z-index: 999;
+}
+#slide-counter {
+  position: fixed; bottom: 14px; right: 32px;
+  font-size: 13px; color: #6b7280; letter-spacing: 1px;
+  z-index: 999;
+}
+
+/* ===== NAV AREAS ===== */
+.nav-left, .nav-right {
+  position: fixed; top: 0; width: 200px; height: 100%;
+  cursor: pointer; z-index: 900; opacity: 0;
+}
+.nav-left { left: 0; }
+.nav-right { right: 0; }
+
+/* ===== TYPOGRAPHY ===== */
+.slide-title {
+  font-size: 48px; font-weight: 800;
+  background: linear-gradient(135deg, #c084fc, #f472b6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 8px; text-align: center; line-height: 1.2;
+}
+.slide-sub {
+  font-size: 20px; color: #94a3b8; margin-bottom: 36px; text-align: center;
+}
+.section-label {
+  font-size: 13px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+  color: #a855f7; margin-bottom: 12px; text-align: center;
+}
+
+/* ===== GLOW CARD ===== */
+.glow-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 16px;
+  padding: 28px 32px;
+  box-shadow: 0 0 24px rgba(168,85,247,0.12), inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: box-shadow 0.3s;
+}
+.glow-card:hover {
+  box-shadow: 0 0 40px rgba(168,85,247,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.glow-card h3 { font-size: 18px; color: #c084fc; margin-bottom: 12px; }
+.glow-card p, .glow-card li { font-size: 15px; color: #cbd5e1; line-height: 1.7; }
+.glow-card ul { padding-left: 18px; }
+
+/* ===== BADGE ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 16px; border-radius: 999px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
+}
+.badge-purple { background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.4); color: #d8b4fe; }
+.badge-pink { background: rgba(236,72,153,0.18); border: 1px solid rgba(236,72,153,0.4); color: #f9a8d4; }
+.badge-blue { background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.4); color: #93c5fd; }
+.badge-green { background: rgba(34,197,94,0.18); border: 1px solid rgba(34,197,94,0.4); color: #86efac; }
+.badge-orange { background: rgba(249,115,22,0.18); border: 1px solid rgba(249,115,22,0.4); color: #fdba74; }
+
+/* ===== STAT ===== */
+.stat-num {
+  font-size: 52px; font-weight: 900;
+  background: linear-gradient(135deg, #c084fc, #f472b6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+.stat-label { font-size: 14px; color: #94a3b8; margin-top: 4px; }
+
+/* ===== BAR CHART ===== */
+.bar-track {
+  background: rgba(255,255,255,0.06);
+  border-radius: 999px; height: 18px; flex: 1;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #a855f7, #ec4899);
+  transition: width 1.2s cubic-bezier(.17,.67,.39,1.03);
+}
+.bar-label { font-size: 14px; color: #cbd5e1; width: 140px; }
+.bar-value { font-size: 14px; font-weight: 700; color: #c084fc; width: 80px; text-align: right; }
+
+/* ===== STEPPER ===== */
+.stepper { display: flex; align-items: flex-start; gap: 0; width: 100%; }
+.step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute; top: 22px; left: 50%; width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(168,85,247,0.5), rgba(236,72,153,0.2));
+}
+.step-circle {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; color: #fff;
+  box-shadow: 0 0 20px rgba(168,85,247,0.5);
+  position: relative; z-index: 1;
+}
+.step-label { font-size: 13px; color: #94a3b8; margin-top: 10px; text-align: center; line-height: 1.4; }
+.step-title { font-size: 15px; font-weight: 700; color: #e2e8f0; margin-top: 4px; text-align: center; }
+
+/* ===== FLOW ARROW ===== */
+.flow-arrow { font-size: 24px; color: #a855f7; margin: 0 8px; line-height: 1; }
+
+/* ===== GRID LAYOUTS ===== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; width: 100%; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; width: 100%; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; width: 100%; }
+
+/* ===== ICON TILE ===== */
+.icon-tile {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  transition: all 0.3s;
+}
+.icon-tile:hover {
+  background: rgba(168,85,247,0.1);
+  border-color: rgba(168,85,247,0.5);
+  box-shadow: 0 0 20px rgba(168,85,247,0.2);
+}
+.icon-tile .icon { font-size: 32px; }
+.icon-tile .name { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+.icon-tile .desc { font-size: 12px; color: #94a3b8; text-align: center; }
+
+/* ===== SVG CHARTS ===== */
+svg text { font-family: 'Segoe UI', sans-serif; }
+
+/* ===== DONUT ===== */
+.donut-container { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.donut-label {
+  position: absolute; text-align: center;
+  font-size: 32px; font-weight: 900;
+  background: linear-gradient(135deg, #c084fc, #f472b6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* ===== AFFINITY BAR ===== */
+.affinity-bar-container {
+  width: 100%; height: 36px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 18px; overflow: hidden; position: relative;
+}
+.affinity-segment {
+  position: absolute; top: 0; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+
+/* ===== PARTICLES (title slide) ===== */
+#particles, #particles5 { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.particle {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,0.6), transparent);
+  animation: float-particle linear infinite;
+}
+@keyframes float-particle {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-1000px) rotate(720deg); opacity: 0; }
+}
+
+/* ===== BOX DIAGRAM ===== */
+.arch-layer {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(168,85,247,0.2);
+  border-radius: 12px; padding: 16px 24px;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 16px;
+  width: 100%;
+}
+.arch-layer-title {
+  font-size: 13px; font-weight: 700; letter-spacing: 2px;
+  color: #a855f7; text-transform: uppercase;
+  min-width: 120px;
+}
+.arch-items { display: flex; gap: 10px; flex-wrap: wrap; }
+.arch-item {
+  padding: 5px 14px; border-radius: 8px;
+  background: rgba(168,85,247,0.12);
+  border: 1px solid rgba(168,85,247,0.3);
+  font-size: 13px; color: #d8b4fe;
+}
+
+/* ===== VERTICAL FLOW ===== */
+.vflow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.vflow-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 14px; color: #e2e8f0; text-align: center;
+  min-width: 200px;
+}
+.vflow-arrow { font-size: 20px; color: #a855f7; line-height: 1; margin: 2px 0; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.modal-overlay.open {
+  opacity: 1; pointer-events: all;
+}
+.modal-box {
+  background: linear-gradient(135deg, #1a1535, #0f0e1a);
+  border: 1px solid rgba(168,85,247,0.4);
+  border-radius: 20px;
+  padding: 40px 48px;
+  width: 700px; max-width: 90%;
+  box-shadow: 0 0 60px rgba(168,85,247,0.25);
+  transform: scale(0.9); transition: transform 0.25s ease;
+  position: relative;
+}
+.modal-overlay.open .modal-box { transform: scale(1); }
+.modal-close {
+  position: absolute; top: 16px; right: 20px;
+  font-size: 22px; color: #6b7280; cursor: pointer;
+  background: none; border: none; line-height: 1;
+  transition: color 0.2s;
+}
+.modal-close:hover { color: #e2e8f0; }
+.modal-title {
+  font-size: 26px; font-weight: 800;
+  background: linear-gradient(135deg, #c084fc, #f472b6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 24px;
+}
+.modal-row {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.modal-row:last-child { border-bottom: none; }
+.modal-row-icon { font-size: 24px; min-width: 36px; text-align: center; }
+.modal-row-title { font-size: 16px; font-weight: 700; color: #e2e8f0; margin-bottom: 4px; }
+.modal-row-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; }
+
+/* ===== SLIDE-SPECIFIC ===== */
+
+/* S01 title */
+#s01 { gap: 0; }
+#s01 .logo-area { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
+#s01 .logo-text {
+  font-size: 86px; font-weight: 900; letter-spacing: -2px;
+  background: linear-gradient(135deg, #c084fc 0%, #f472b6 50%, #818cf8 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 40px rgba(168,85,247,0.6));
+}
+#s01 .logo-sub { font-size: 20px; color: #94a3b8; letter-spacing: 4px; margin-top: -6px; }
+
+/* S05 last slide */
+#s05 { gap: 0; }
+#s05 .logo-text {
+  font-size: 72px; font-weight: 900; letter-spacing: -2px;
+  background: linear-gradient(135deg, #c084fc 0%, #f472b6 50%, #818cf8 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 50px rgba(168,85,247,0.7));
+  margin-bottom: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="nav-left" onclick="prevSlide()"></div>
+<div class="nav-right" onclick="nextSlide()"></div>
+<div id="progress-bar"></div>
+<div id="slide-counter">01 / 05</div>
+
+<div class="slide-container">
+
+<!-- ============================================================ -->
+<!-- SLIDE 01: Dive.ai 소개 + 팀원 소개 -->
+<!-- ============================================================ -->
+<div class="slide active" id="s01">
+  <div id="particles"></div>
+
+  <div class="logo-area">
+    <div class="logo-text">Dive.ai</div>
+    <div class="logo-sub">AI INTERACTIVE STORY ROLEPLAY PLATFORM</div>
+  </div>
+
+  <div class="grid-2" style="max-width:1560px; margin-top:0;">
+
+    <!-- Left: 프로젝트 소개 -->
+    <div class="glow-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <h3 style="font-size:20px; margin-bottom:16px;">📖 Dive.ai란?</h3>
+        <p style="font-size:22px; line-height:1.9; color:#cbd5e1;">
+          유저의 <strong style="color:#c084fc;">단편적인 소재</strong>를 완성도 높은 시나리오와 캐릭터로 제작하고,<br>
+          이를 <strong style="color:#f472b6;">인터랙티브 구조</strong>로 변환하여<br>
+          AI 캐릭터와 대화하며 <strong style="color:#93c5fd;">자신만의 엔딩</strong>을 만들어가는
+          캐릭터 채팅 웹사이트
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: 팀원 소개 -->
+    <div class="glow-card">
+      <h3 style="font-size:20px; margin-bottom:22px;">👥 팀원 소개</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">조규형</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">정권률</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">김재원</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">전민서</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">김만덕</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+        <div style="text-align:center; padding:18px 10px; background:rgba(255,255,255,0.04); border:1px solid rgba(168,85,247,0.2); border-radius:14px;">
+          <div style="font-size:17px; font-weight:800; color:#e2e8f0;">이건욱</div>
+          <div style="font-size:12px; color:#64748b; margin-top:5px; letter-spacing:1px;">MEMBER</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 02: 기획 배경 -->
+<!-- ============================================================ -->
+<div class="slide" id="s02">
+  <div class="section-label">Scene 02</div>
+  <div class="slide-title">기획 배경</div>
+  <div class="slide-sub">시나리오 생성 봇 + 캐릭터 채팅의 만남</div>
+
+  <div class="grid-2" style="max-width:1560px; align-items:stretch;">
+
+    <!-- Left: 개발 계기 -->
+    <div class="glow-card">
+      <h3 style="margin-bottom:24px;">💡 어떻게 시작됐나</h3>
+      <div style="display:flex; flex-direction:column;">
+        <div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,#a855f7,#ec4899); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; box-shadow:0 0 16px rgba(168,85,247,0.4);">📝</div>
+          <div>
+            <div style="font-size:16px; font-weight:700; color:#e2e8f0;">시나리오 생성 봇 아이디어</div>
+          </div>
+        </div>
+        <div style="margin-left:23px; height:20px; border-left:2px dashed rgba(168,85,247,0.35);"></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:46px; height:46px; border-radius:50%; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.35); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">🔗</div>
+          <div>
+            <div style="font-size:16px; font-weight:700; color:#e2e8f0;">팀 구성</div>
+          </div>
+        </div>
+        <div style="margin-left:23px; height:20px; border-left:2px dashed rgba(168,85,247,0.35);"></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:16px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:46px; height:46px; border-radius:50%; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.35); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">💬</div>
+          <div>
+            <div style="font-size:16px; font-weight:700; color:#e2e8f0;">캐릭터 채팅과의 결합</div>
+          </div>
+        </div>
+        <div style="margin-left:23px; height:20px; border-left:2px dashed rgba(168,85,247,0.35);"></div>
+        <div style="display:flex; align-items:center; gap:16px; padding:16px 0;">
+          <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,#a855f7,#ec4899); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; box-shadow:0 0 20px rgba(168,85,247,0.5);">🚀</div>
+          <div>
+            <div style="font-size:16px; font-weight:700; color:#c084fc;">Dive.ai 기획 확정</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: 기존 한계 + 방향성 -->
+    <div style="display:flex; flex-direction:column; gap:22px;">
+      <div class="glow-card" style="border-color:rgba(59,130,246,0.35); flex:1;">
+        <h3 style="color:#93c5fd; margin-bottom:18px;">💬 기존 서비스의 특징</h3>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="color:#3b82f6; font-size:18px; flex-shrink:0;">▸</span>
+            <span style="font-size:15px; color:#cbd5e1;"><strong style="color:#93c5fd;">캐릭터와의 대화·교감</strong>에 초점을 맞춘 서비스</span>
+          </div>
+          <div style="display:flex; align-items:flex-start; gap:10px;">
+            <span style="color:#3b82f6; font-size:18px; flex-shrink:0;">▸</span>
+            <span style="font-size:15px; color:#cbd5e1;">스토리는 <strong style="color:#93c5fd;">유저가 직접 이끌어가는 구조</strong></span>
+          </div>
+        </div>
+      </div>
+      <div class="glow-card" style="border-color:rgba(168,85,247,0.5); box-shadow:0 0 24px rgba(168,85,247,0.15); flex:1;">
+        <h3 style="color:#c084fc; margin-bottom:18px;">🎯 Dive.ai의 방향성</h3>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="color:#a855f7; font-size:20px; flex-shrink:0;">▸</span>
+            <span style="font-size:15px; color:#cbd5e1;">AI가 시나리오·캐릭터 자동 설계 — 유저는 대화에만 집중</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="color:#a855f7; font-size:20px; flex-shrink:0;">▸</span>
+            <span style="font-size:15px; color:#cbd5e1;"><strong style="color:#c084fc;">기·승·전·결</strong> 구조 속에서 서사가 진행</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="color:#a855f7; font-size:20px; flex-shrink:0;">▸</span>
+            <span style="font-size:15px; color:#cbd5e1;">내가 직접 이야기에 참여해 <strong style="color:#c084fc;">나만의 엔딩</strong>을 만들어가는 경험</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="slide" id="s03">
+  <div class="section-label">Scene 03</div>
+  <div class="slide-title">데이터셋 & 활용 방식</div>
+  <div class="slide-sub">총 102,568개 씬 패턴 → 스토리헬퍼 16단계 → 기승전결 매핑</div>
+
+  <!-- Stats row -->
+  <div style="display:flex; align-items:center; gap:24px; margin-bottom:28px;">
+    <div style="text-align:center; padding:20px 44px; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.35); border-radius:16px;">
+      <div class="stat-num">89,851</div>
+      <div class="stat-label">씬 패턴 데이터</div>
+      <div style="font-size:12px; color:#6b7280; margin-top:4px;">만화 · 소설 · 시리즈 · 영화</div>
+    </div>
+    <div style="font-size:36px; color:#6b7280; font-weight:300;">+</div>
+    <div style="text-align:center; padding:20px 44px; background:rgba(249,115,22,0.08); border:1px solid rgba(249,115,22,0.35); border-radius:16px;">
+      <div class="stat-num">12,717</div>
+      <div class="stat-label">고전 단락 데이터</div>
+      <div style="font-size:12px; color:#6b7280; margin-top:4px;">한국 · 중국 · 일본 고전</div>
+    </div>
+    <div style="font-size:36px; color:#6b7280; font-weight:300;">=</div>
+    <div style="text-align:center; padding:20px 44px; background:rgba(236,72,153,0.1); border:1px solid rgba(236,72,153,0.45); border-radius:16px; box-shadow:0 0 28px rgba(236,72,153,0.18);">
+      <div class="stat-num">102,568</div>
+      <div class="stat-label">총 씬 패턴</div>
+      <div style="font-size:12px; color:#f9a8d4; margin-top:4px; font-weight:700;">ChromaDB 저장</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="max-width:1560px; align-items:stretch;">
+
+    <!-- Left: 스토리헬퍼 매핑 -->
+    <div class="glow-card">
+      <h3 style="margin-bottom:20px;">📐 스토리헬퍼 16단계 → 기승전결 매핑</h3>
+      <p style="font-size:14px; color:#94a3b8; margin-bottom:20px; line-height:1.7;">
+        한국콘텐츠진흥원의 스토리헬퍼 16단계는<br>하나의 이야기를 발단부터 결말까지 16개 서사 단계로 나눈 구조
+      </p>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div style="flex:1; background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.25); border-radius:12px; padding:14px; text-align:center;">
+          <div style="font-size:28px; font-weight:900; color:#c084fc; margin-bottom:4px;">16</div>
+          <div style="font-size:12px; color:#94a3b8;">스토리헬퍼 단계</div>
+        </div>
+        <div style="font-size:28px; color:#a855f7;">→</div>
+        <div style="flex:1; background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(236,72,153,0.15)); border:1px solid rgba(168,85,247,0.4); border-radius:12px; padding:14px;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <div style="text-align:center; padding:8px; background:rgba(168,85,247,0.1); border-radius:8px;">
+              <div style="font-size:15px; font-weight:800; color:#c084fc;">기</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:rgba(168,85,247,0.1); border-radius:8px;">
+              <div style="font-size:15px; font-weight:800; color:#c084fc;">승</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:rgba(168,85,247,0.1); border-radius:8px;">
+              <div style="font-size:15px; font-weight:800; color:#c084fc;">전</div>
+            </div>
+            <div style="text-align:center; padding:8px; background:rgba(168,85,247,0.1); border-radius:8px;">
+              <div style="font-size:15px; font-weight:800; color:#c084fc;">결</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:13px; color:#6b7280; margin-top:16px; line-height:1.7;">
+        → 유저가 현재 진행 중인 단계에 맞는 씬 패턴을 골라 시나리오 생성에 활용
+      </p>
+    </div>
+
+    <!-- Right: RAG 흐름 -->
+    <div class="glow-card">
+      <h3 style="margin-bottom:20px;">🔍 시나리오 생성 RAG 흐름</h3>
+      <div style="display:flex; flex-direction:column; gap:0;">
+        <div style="display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:36px; height:36px; border-radius:10px; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.35); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">✍️</div>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#e2e8f0;">유저 소재 입력</div>
+          </div>
+        </div>
+        <div style="margin-left:18px; height:16px; border-left:1px dashed rgba(168,85,247,0.3);"></div>
+        <div style="display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:36px; height:36px; border-radius:10px; background:rgba(236,72,153,0.15); border:1px solid rgba(236,72,153,0.35); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">🧮</div>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#e2e8f0;">ChromaDB 벡터 검색</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:2px;">의미 유사 씬 패턴 상위 5개 추출</div>
+          </div>
+        </div>
+        <div style="margin-left:18px; height:16px; border-left:1px dashed rgba(168,85,247,0.3);"></div>
+        <div style="display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+          <div style="width:36px; height:36px; border-radius:10px; background:rgba(59,130,246,0.15); border:1px solid rgba(59,130,246,0.35); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">📎</div>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#e2e8f0;">Gemini에 참고자료로 전달</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:2px;">고전 선택 시 고전 단락 데이터도 추가</div>
+          </div>
+        </div>
+        <div style="margin-left:18px; height:16px; border-left:1px dashed rgba(168,85,247,0.3);"></div>
+        <div style="display:flex; align-items:center; gap:14px; padding:14px 0;">
+          <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,rgba(168,85,247,0.2),rgba(236,72,153,0.2)); border:1px solid rgba(168,85,247,0.4); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">🎬</div>
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#c084fc;">완성도 높은 시나리오 생성</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:2px;">실제 콘텐츠 구조를 참고한 서사</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="slide" id="s04">
+  <div class="section-label">Scene 04</div>
+  <div class="slide-title">기술 스택</div>
+  <div class="slide-sub">Dive.ai를 구성하는 핵심 기술</div>
+
+  <div class="grid-2" style="max-width:1560px; align-items:stretch; gap:24px;">
+
+    <!-- FastAPI + React -->
+    <div class="glow-card" style="border-color:rgba(168,85,247,0.45);">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+        <div style="font-size:38px;">⚡</div>
+        <div>
+          <div style="font-size:22px; font-weight:800; color:#c084fc;">FastAPI + React</div>
+          <div style="font-size:13px; color:#6b7280; margin-top:3px;">백엔드 + 프론트엔드</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#a855f7; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">SSE 방식으로 채팅 답변 실시간 스트리밍</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#a855f7; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">React + TypeScript로 시나리오 빌더·채팅창·갤러리 구성</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ChromaDB RAG -->
+    <div class="glow-card" style="border-color:rgba(236,72,153,0.45);">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+        <div style="font-size:38px;">🔍</div>
+        <div>
+          <div style="font-size:22px; font-weight:800; color:#f9a8d4;">ChromaDB RAG</div>
+          <div style="font-size:13px; color:#6b7280; margin-top:3px;">벡터 데이터베이스</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#ec4899; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">102,568개 씬 패턴 임베딩 저장</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#ec4899; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">소재 입력 시 유사 씬 패턴 벡터 검색 → 시나리오 생성에 반영</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase -->
+    <div class="glow-card" style="border-color:rgba(34,197,94,0.45);">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+        <div style="font-size:38px;">🔐</div>
+        <div>
+          <div style="font-size:22px; font-weight:800; color:#86efac;">Firebase</div>
+          <div style="font-size:13px; color:#6b7280; margin-top:3px;">인증</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#22c55e; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">Google 소셜 로그인 — 별도 회원가입 없음</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#22c55e; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">인증 토큰 발급 → 백엔드 검증 → 내부 JWT 교환</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vertex AI -->
+    <div class="glow-card" style="border-color:rgba(59,130,246,0.45);">
+      <div style="display:flex; align-items:center; gap:16px; margin-bottom:18px;">
+        <div style="font-size:38px;">🤖</div>
+        <div>
+          <div style="font-size:22px; font-weight:800; color:#93c5fd;">Vertex AI</div>
+          <div style="font-size:13px; color:#6b7280; margin-top:3px;">Google Cloud AI Platform</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#3b82f6; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">Gemini 모델 호출 창구</span>
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:10px;">
+          <span style="color:#3b82f6; font-size:18px; flex-shrink:0; margin-top:1px;">▸</span>
+          <span style="font-size:15px; color:#cbd5e1;">시나리오·채팅·이미지·BGM·시네마틱 영상 생성</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="slide" id="s05">
+  <div class="section-label">Scene 05</div>
+  <div class="slide-title">Dive.ai만의 강점</div>
+  <div class="slide-sub">서사에 집중한 캐릭터 채팅</div>
+
+  <div class="grid-4" style="max-width:1560px; align-items:stretch; gap:24px;">
+
+    <!-- 작가 경험 -->
+    <div class="glow-card" style="border-color:rgba(168,85,247,0.45); text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; padding:36px 24px;">
+      <div style="font-size:52px;">✍️</div>
+      <div style="font-size:20px; font-weight:800; color:#c084fc;">작가가 되는 경험</div>
+      <p style="font-size:14px; color:#94a3b8; line-height:1.8; text-align:center;">
+        소재만 입력하면 AI가<br>시나리오·캐릭터 자동 설계<br>내가 만든 이야기 속 주인공
+      </p>
+    </div>
+
+    <!-- 기승전결 -->
+    <div class="glow-card" style="border-color:rgba(236,72,153,0.45); text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; padding:36px 24px;">
+      <div style="font-size:52px;">📖</div>
+      <div style="font-size:20px; font-weight:800; color:#f9a8d4;">기승전결 구조</div>
+      <div style="display:flex; gap:8px; justify-content:center; margin:4px 0;">
+        <span style="padding:6px 14px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.3); border-radius:8px; font-size:15px; font-weight:700; color:#f9a8d4;">기</span>
+        <span style="padding:6px 14px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.3); border-radius:8px; font-size:15px; font-weight:700; color:#f9a8d4;">승</span>
+        <span style="padding:6px 14px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.3); border-radius:8px; font-size:15px; font-weight:700; color:#f9a8d4;">전</span>
+        <span style="padding:6px 14px; background:rgba(236,72,153,0.12); border:1px solid rgba(236,72,153,0.3); border-radius:8px; font-size:15px; font-weight:700; color:#f9a8d4;">결</span>
+      </div>
+      <p style="font-size:14px; color:#94a3b8; line-height:1.8; text-align:center;">
+        단순 잡담이 아닌 서사 흐름<br>AI가 단계 자동 전환
+      </p>
+    </div>
+
+    <!-- 엔딩 -->
+    <div class="glow-card" style="border-color:rgba(251,191,36,0.45); text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; padding:36px 24px;">
+      <div style="font-size:52px;">🏁</div>
+      <div style="font-size:20px; font-weight:800; color:#fde68a;">엔딩</div>
+      <p style="font-size:14px; color:#94a3b8; line-height:1.8; text-align:center;">
+        결 단계 완료 시 엔딩 자동 생성<br>내 대화 방식에 따라<br>달라지는 결말
+      </p>
+    </div>
+
+    <!-- 멀티모달 -->
+    <div class="glow-card" style="border-color:rgba(59,130,246,0.45); text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; padding:36px 24px;">
+      <div style="font-size:52px;">🎬</div>
+      <div style="font-size:20px; font-weight:800; color:#93c5fd;">멀티모달</div>
+      <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:4px 0;">
+        <span style="padding:4px 10px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:6px; font-size:12px; color:#93c5fd;">이미지</span>
+        <span style="padding:4px 10px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:6px; font-size:12px; color:#93c5fd;">BGM</span>
+        <span style="padding:4px 10px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:6px; font-size:12px; color:#93c5fd;">시네마틱</span>
+      </div>
+      <p style="font-size:14px; color:#94a3b8; line-height:1.8; text-align:center;">
+        단계 전환마다 배경·캐릭터<br>이미지 자동 생성<br>시각·청각 몰입감 강화
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<div class="slide" id="s06">
+  <div id="particles5"></div>
+
+  <div style="display:flex; flex-direction:column; align-items:center; gap:28px;">
+    <div class="logo-text">Dive.ai</div>
+
+    <div style="font-size:46px; font-weight:900; color:#e2e8f0; letter-spacing:-1px; text-align:center; line-height:1.2;">
+      이제 직접 보여드리겠습니다
+    </div>
+    <div style="font-size:20px; color:#94a3b8; margin-top:-8px; letter-spacing:2px;">웹사이트 시연</div>
+
+    <div style="display:flex; gap:24px; margin-top:12px;">
+      <div style="text-align:center; padding:24px 36px; background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.4); border-radius:18px; min-width:200px; box-shadow:0 0 24px rgba(168,85,247,0.15); transition:transform 0.3s;" onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:32px; margin-bottom:12px;">🎭</div>
+        <div style="font-size:15px; font-weight:800; color:#d8b4fe; margin-bottom:6px;">시나리오 생성</div>
+        <div style="font-size:12px; color:#6b7280; line-height:1.6;">소재 입력부터<br>완성된 시나리오까지</div>
+      </div>
+      <div style="text-align:center; padding:24px 36px; background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.4); border-radius:18px; min-width:200px; box-shadow:0 0 24px rgba(168,85,247,0.15); transition:transform 0.3s;" onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:32px; margin-bottom:12px;">💬</div>
+        <div style="font-size:15px; font-weight:800; color:#d8b4fe; margin-bottom:6px;">인터랙티브 채팅</div>
+        <div style="font-size:12px; color:#6b7280; line-height:1.6;">AI와 롤플레이<br>기승전결 진행</div>
+      </div>
+      <div style="text-align:center; padding:24px 36px; background:rgba(168,85,247,0.1); border:1px solid rgba(168,85,247,0.4); border-radius:18px; min-width:200px; box-shadow:0 0 24px rgba(168,85,247,0.15); transition:transform 0.3s;" onmouseover="this.style.transform='translateY(-6px)'" onmouseout="this.style.transform='none'">
+        <div style="font-size:32px; margin-bottom:12px;">🏁</div>
+        <div style="font-size:15px; font-weight:800; color:#d8b4fe; margin-bottom:6px;">엔딩 & 이미지</div>
+        <div style="font-size:12px; color:#6b7280; line-height:1.6;">호감도 기반 엔딩<br>+ 나노바나나2 이미지</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /slide-container -->
+
+<script>
+let current = 0;
+const total = 6;
+
+function getSlides() {
+  return document.querySelectorAll('.slide');
+}
+
+function goTo(n) {
+  const slides = getSlides();
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(total - 1, n));
+  slides[current].classList.add('active');
+
+  document.getElementById('progress-bar').style.width = ((current + 1) / total * 100) + '%';
+  const num = String(current + 1).padStart(2, '0');
+  document.getElementById('slide-counter').textContent = num + ' / ' + String(total).padStart(2, '0');
+}
+
+function nextSlide() { goTo(current + 1); }
+function prevSlide() { goTo(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); prevSlide(); }
+});
+
+function createParticles(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random() * 100}%;
+      bottom:-10px;
+      animation-duration:${Math.random() * 8 + 6}s;
+      animation-delay:${Math.random() * 5}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// Viewport scaling — always fill and center the 1920×1080 canvas
+function scaleToFit() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  document.body.style.transform = `scale(${s})`;
+}
+scaleToFit();
+window.addEventListener('resize', scaleToFit);
+
+// Init
+goTo(0);
+createParticles('particles');
+createParticles('particles5');
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+# ── 런타임 필수 ──────────────────────────────────────────
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-dotenv
+python-multipart
+firebase-admin
+python-jose
+
+# LangChain
+langchain
+langchain-core
+langchain-google-genai
+langchain-google-vertexai
+
+# AI 모델 SDK
+openai
+chromadb
+google-generativeai
+anthropic[vertex]
+
+# ── 오프라인 데이터 적재 전용 (ingest_data.py) ───────────
+# 벡터DB 재구축 시에만 필요. 런타임에는 없어도 됨.
+langchain-community
+langchain-text-splitters
