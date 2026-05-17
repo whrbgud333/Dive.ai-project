@@ -1363,7 +1363,6 @@ async def regenerate_affinity_image(
             lambda: generate_ending_image(
                 content_type=category,
                 genre=genre,
-                ending_type='해피',
                 ending_scene=topic.affinity_max_scene,
                 ai_char=ai_char,
                 user_char=user_char,
@@ -3977,7 +3976,6 @@ async def _chat_stream_v2(request: ChatRequest, topic, user_message: str, db: Se
                     generate_ending_image,
                     content_type=category,
                     genre=genre,
-                    ending_type='해피',
                     ending_scene=affinity_max_scene_text,
                     ai_char=ai_character or {},
                     user_char=user_character or {},
