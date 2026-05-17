@@ -101,10 +101,8 @@ npm run dev
 
 ## 팀원
 
-| GitHub | 역할 |
-|---|---|
-| [@whrbgud333](https://github.com/whrbgud333) | |
-| [@Aerhenav](https://github.com/Aerhenav) | |
-| [@BalamBBang](https://github.com/BalamBBang) | |
-| [@gjaewon071](https://github.com/gjaewon071) | |
-| [@jklul941223-coder](https://github.com/jklul941223-coder) | |
+- [@whrbgud333](https://github.com/whrbgud333)
+- [@Aerhenav](https://github.com/Aerhenav)
+- [@BalamBBang](https://github.com/BalamBBang)
+- [@gjaewon071](https://github.com/gjaewon071)
+- [@jklul941223-coder](https://github.com/jklul941223-coder)
