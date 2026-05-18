@@ -1480,8 +1480,8 @@ async def regenerate_cover_image_endpoint(
 
     from sqlalchemy.orm.attributes import flag_modified
     old_cover_images = list(_copy.deepcopy(topic.cover_images) or [])
-    if topic.cover_image:
-        old_cover_images.append(topic.cover_image)
+    if not old_cover_images and topic.cover_image:
+        old_cover_images = [topic.cover_image]
     new_cover_images = old_cover_images + [cover_url]
     topic.cover_image = cover_url
     topic.cover_images = new_cover_images
@@ -1638,8 +1638,8 @@ async def regenerate_ai_character_image_endpoint(
         f"images/ai_character/topic_{topic_id}_ai_{int(_time.time())}",
     )
     old_images = list(ai_char.get('images') or [])
-    if ai_char.get('image'):
-        old_images.append(ai_char['image'])
+    if not old_images and ai_char.get('image'):
+        old_images = [ai_char['image']]
     new_images = old_images + [url]
     ai_char['image'] = url
     ai_char['images'] = new_images
@@ -1726,8 +1726,8 @@ async def regenerate_user_character_image_endpoint(
         f"images/user_character/topic_{topic_id}_user_{int(_time.time())}",
     )
     old_images = list(user_char.get('images') or [])
-    if user_char.get('image'):
-        old_images.append(user_char['image'])
+    if not old_images and user_char.get('image'):
+        old_images = [user_char['image']]
     new_images = old_images + [url]
     user_char['image'] = url
     user_char['images'] = new_images
@@ -1909,8 +1909,8 @@ async def regenerate_character_images_endpoint(
                 _topic = db.query(models.Topic).filter(models.Topic.id == topic_id).first()
                 if _topic:
                     old_cover_images = list(_copy.deepcopy(_topic.cover_images) or [])
-                    if _topic.cover_image:
-                        old_cover_images.append(_topic.cover_image)
+                    if not old_cover_images and _topic.cover_image:
+                        old_cover_images = [_topic.cover_image]
                     new_cover_images = old_cover_images + [cover_url]
                     _topic.cover_image = cover_url
                     _topic.cover_images = new_cover_images
